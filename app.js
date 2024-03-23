@@ -120,9 +120,9 @@ function getLearnerData(course, ag, submissions) {
     let assignmentID = "";
     let submitDt = "";
     let learnerScore = "";
-    let assignDueDate = "";
-    let assginPoints = "";
-    let penalty = "";
+    // let assignDueDate = "";
+    // let assginPoints = "";
+    // let penalty = "";
 
     // Check course id
     const courseID = course.id;
@@ -142,11 +142,35 @@ function getLearnerData(course, ag, submissions) {
     // console.log(validAssignments[1].id);
     // console.log(validAssignments[2].id);
 
+    //Loop through submissions
     for (let i = 0; i < submissions.length; i++) {
+        //One submission array
+        const submission = submissions[i];
         const learner_id = submission.learner_id;
         const assignment_id = submission.assignment_id;
         const submitted_at = submission.submission.submitted_at;
         const score = submission.submission.score;
+        //console.log(score);
+
+        // Find assignment match and get assignment obj and exit if found
+        // Otherwise continue
+        let assignment;
+        for (let j = 0; j < validAssignments.length; j++) {
+            if (validAssignments[j].id === assignment_id) {
+                assignment = validAssignments[j];
+                //console.log(`assignment: `, assignment);
+                break;
+            }
+        }
+        if (!assignment) continue;
+
+        const assignDueDate = assignment.due_at;
+        const assignPoints = assignment.points_possible;
+        //console.log(`aDD:  ${assignDueDate} aPoints ${assignPoints}`);
+
+        // Calculate penalty
+        const penalty = isValidSubmitDate(submitted_at, assignDueDate) ? 0 : assignPoints * 0.1;
+        //console.log(`Penalty: ${penalty}`);
     }
 
     //return result;
