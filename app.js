@@ -102,12 +102,8 @@ function isValidSubmitDate(submitDate, dueDate) {
 
     // Compare the two dates
     if (sDate.getTime() <= dDate.getTime()) {
-        //console.log(`The submitted date ${sDate} is accepted by ${dDate}!`);
         return true;
     } else {
-        // console.log(
-        //     `They missed the due date of ${dDate} by submitting on ${sDate}.`
-        // );
         return false;
     }
 }
@@ -118,21 +114,25 @@ function getLearnerData(course, ag, submissions) {
     const learnerScores = {};
 
     // Check course id
-    const courseID = course.id;
-    console.log(courseID);
-
-    //console.log(ag.assignments);
+    try {
+        if (course.id !== ag.course_id) {
+            throw new Error("Incorrect course IDs.");
+        }
+    } catch (error) {
+        console.error(error.message);
+        return result;
+    }
 
     // Get valid assignments
-
     for (let i = 0; i < ag.assignments.length; i++) {
         if (isValidDueDate(ag.assignments[i].due_at)) {
             validAssignments.push(ag.assignments[i]);
         }
-        //console.log(validAssignments[i]);
     }
 
-    //Loop through submissions
+    //Loop through submissions; Find matching assignments
+    //Validate submissions and assignments
+    //Define, calculate and assign score, points, and avg's
     for (let i = 0; i < submissions.length; i++) {
         //One submission array
         const submission = submissions[i];
@@ -140,7 +140,6 @@ function getLearnerData(course, ag, submissions) {
         const assignment_id = submission.assignment_id;
         const submitted_at = submission.submission.submitted_at;
         const score = submission.submission.score;
-        //console.log(score);
 
         // Find assignment match and get assignment obj and exit if found
         // Otherwise continue
@@ -148,7 +147,6 @@ function getLearnerData(course, ag, submissions) {
         for (let j = 0; j < validAssignments.length; j++) {
             if (validAssignments[j].id === assignment_id) {
                 assignment = validAssignments[j];
-                //console.log(`assignment: `, assignment);
                 break;
             }
         }
@@ -156,13 +154,19 @@ function getLearnerData(course, ag, submissions) {
 
         const assignDueDate = assignment.due_at;
         const assignPoints = assignment.points_possible;
-        //console.log(`aDD:  ${assignDueDate} aPoints ${assignPoints}`);
 
+        // Check possible points is not zero
+        if (assignPoints === 0) {
+            console.warn(
+                `Assignment ${assignment_id} has zero possible points.`
+            );
+            // Skip processing this submission
+            continue; 
+        }
         // Calculate penalty
         const penalty = isValidSubmitDate(submitted_at, assignDueDate)
             ? 0
             : assignPoints * 0.1;
-        //console.log(`Penalty: ${penalty}`);
 
         // Begin capture of learner assignment scores
         // Initialize learner score if not exists
@@ -178,7 +182,7 @@ function getLearnerData(course, ag, submissions) {
         //Set scores, penalty, possible points
         learnerScores[learner_id].totalScore += score - penalty;
         learnerScores[learner_id].totalPossible += assignPoints;
-        //Math.round to match example data
+        //Math.round to match example data given in SBA
         learnerScores[learner_id].assignmentScores[assignment_id] =
             Math.round(((score - penalty) / assignPoints) * 1000) / 1000;
     }
@@ -200,25 +204,9 @@ function getLearnerData(course, ag, submissions) {
         result.push(learnerResult);
     }
 
-    //return result;
+    return result;
 }
 
 const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
 
-//console.log(result);
-
-// The final result should be:
-//   const result = [
-//     {
-//       id: 125,
-//       avg: 0.985, // (47 + 150) / (50 + 150)
-//       1: 0.94, // 47 / 50
-//       2: 1.0 // 150 / 150
-//     },
-//     {
-//       id: 132,
-//       avg: 0.82, // (39 + 125) / (50 + 150)
-//       1: 0.78, // 39 / 50
-//       2: 0.833 // late: (140 - 15) / 150
-//     }
-//   ];
+console.log(result);
