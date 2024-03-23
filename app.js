@@ -86,10 +86,8 @@ function isValidDueDate(assignDate) {
 
     // Compare the two dates
     if (otherDate.getTime() <= today.getTime()) {
-        //console.log("The date is valid!");
         return true;
     } else {
-        //console.log("The date is in the future.");
         return false;
     }
 }
@@ -115,6 +113,9 @@ function isValidSubmitDate(submitDate, dueDate) {
 }
 
 function getLearnerData(course, ag, submissions) {
+    const result = [];
+    const validAssignments = [];
+    const learnerScores = {};
     let learnerID = "";
     let assignmentID = "";
     let submitDt = "";
@@ -129,8 +130,8 @@ function getLearnerData(course, ag, submissions) {
 
     //console.log(ag.assignments);
 
-    // Get valid assignments by their due date
-    const validAssignments = [];
+    // Get valid assignments
+
     for (let i = 0; i < ag.assignments.length; i++) {
         if (isValidDueDate(ag.assignments[i].due_at)) {
             validAssignments.push(ag.assignments[i]);
@@ -141,41 +142,12 @@ function getLearnerData(course, ag, submissions) {
     // console.log(validAssignments[1].id);
     // console.log(validAssignments[2].id);
 
-    submissions.forEach((submission) => {
-        // console.log(
-        //     `Learner ${submission.learner_id} submitted assignment ${submission.assignment_id} on ${submission.submission.submitted_at} with a score of ${submission.submission.score}`
-        // );
-        learnerID = submission.learner_id;
-        assignmentID = submission.assignment_id;
-        submitDt = submission.submitted_at;
-        learnerScore = submission.submission.score;
-
-        validAssignments.forEach((assign) => {
-            if (assign.id === submission.assignment_id) {
-                console.log(
-                    `Learner ${submission.learner_id} assign.id = ${assign.id} submission.assignment_id = ${submission.assignment_id}`
-                );
-                assignDueDate = assign.due_at;
-                assignPoints = assign.points_possible;
-                console.log(assignDueDate);
-            }
-        });
-
-        if (assignDueDate) {
-            if (
-                isValidSubmitDate(
-                    submission.submission.submitted_at,
-                    assignDueDate
-                )
-            ) {
-                penalty = 0;
-                console.log(`submitted on time penalty = ${penalty}`);
-            } else {
-                penalty = assignPoints * .1
-                console.log(`submitted late penalty = ${penalty}`);
-            }
-        }
-    });
+    for (let i = 0; i < submissions.length; i++) {
+        const learner_id = submission.learner_id;
+        const assignment_id = submission.assignment_id;
+        const submitted_at = submission.submission.submitted_at;
+        const score = submission.submission.score;
+    }
 
     //return result;
 }
