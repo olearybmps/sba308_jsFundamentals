@@ -139,7 +139,11 @@ function getLearnerData(course, ag, submissions) {
         const learner_id = submission.learner_id;
         const assignment_id = submission.assignment_id;
         const submitted_at = submission.submission.submitted_at;
-        const score = submission.submission.score;
+        const score = Number(submission.submission.score);
+
+        if (isNaN(score)) {
+            throw new Error("The score property must be a number.");
+        }
 
         // Find assignment match and get assignment obj and exit if found
         // Otherwise continue
@@ -153,7 +157,11 @@ function getLearnerData(course, ag, submissions) {
         if (!assignment) continue;
 
         const assignDueDate = assignment.due_at;
-        const assignPoints = assignment.points_possible;
+        const assignPoints = Number(assignment.points_possible);
+
+        if (isNaN(assignPoints)) {
+            throw new Error("The assignPoints property must be a number.");
+        }
 
         // Check possible points is not zero
         if (assignPoints === 0) {
@@ -161,7 +169,7 @@ function getLearnerData(course, ag, submissions) {
                 `Assignment ${assignment_id} has zero possible points.`
             );
             // Skip processing this submission
-            continue; 
+            continue;
         }
         // Calculate penalty
         const penalty = isValidSubmitDate(submitted_at, assignDueDate)
