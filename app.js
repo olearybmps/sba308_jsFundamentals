@@ -116,13 +116,6 @@ function getLearnerData(course, ag, submissions) {
     const result = [];
     const validAssignments = [];
     const learnerScores = {};
-    let learnerID = "";
-    let assignmentID = "";
-    let submitDt = "";
-    let learnerScore = "";
-    // let assignDueDate = "";
-    // let assginPoints = "";
-    // let penalty = "";
 
     // Check course id
     const courseID = course.id;
@@ -138,9 +131,6 @@ function getLearnerData(course, ag, submissions) {
         }
         //console.log(validAssignments[i]);
     }
-    //console.log(validAssignments);
-    // console.log(validAssignments[1].id);
-    // console.log(validAssignments[2].id);
 
     //Loop through submissions
     for (let i = 0; i < submissions.length; i++) {
@@ -169,8 +159,45 @@ function getLearnerData(course, ag, submissions) {
         //console.log(`aDD:  ${assignDueDate} aPoints ${assignPoints}`);
 
         // Calculate penalty
-        const penalty = isValidSubmitDate(submitted_at, assignDueDate) ? 0 : assignPoints * 0.1;
+        const penalty = isValidSubmitDate(submitted_at, assignDueDate)
+            ? 0
+            : assignPoints * 0.1;
         //console.log(`Penalty: ${penalty}`);
+
+        // Begin capture of learner assignment scores
+        // Initialize learner score if not exists
+        if (!learnerScores[learner_id]) {
+            learnerScores[learner_id] = {
+                id: learner_id,
+                totalScore: 0,
+                totalPossible: 0,
+                assignmentScores: {},
+            };
+        }
+
+        //Set scores, penalty, possible points
+        learnerScores[learner_id].totalScore += score - penalty;
+        learnerScores[learner_id].totalPossible += assignPoints;
+        //Math.round to match example data
+        learnerScores[learner_id].assignmentScores[assignment_id] =
+            Math.round(((score - penalty) / assignPoints) * 1000) / 1000;
+    }
+
+    // Generate result array
+    for (const learnerId in learnerScores) {
+        const learner = learnerScores[learnerId];
+        const avg = learner.totalScore / learner.totalPossible;
+
+        // Initialize learner results
+        const learnerResult = { id: learner.id, avg: avg };
+
+        // Add assignment scores to the learner result
+        for (const assignmentId in learner.assignmentScores) {
+            learnerResult[assignmentId] =
+                learner.assignmentScores[assignmentId];
+        }
+
+        result.push(learnerResult);
     }
 
     //return result;
