@@ -195,7 +195,7 @@ function getLearnerData(course, ag, submissions) {
             Math.round(((score - penalty) / assignPoints) * 1000) / 1000;
     }
 
-    // Generate result array
+    // Generate final result array
     for (const learnerId in learnerScores) {
         const learner = learnerScores[learnerId];
         const avg = learner.totalScore / learner.totalPossible;
