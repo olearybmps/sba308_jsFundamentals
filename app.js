@@ -145,7 +145,7 @@ function getLearnerData(course, ag, submissions) {
         const learner_id = submission.learner_id;
         const assignment_id = submission.assignment_id;
         const submitted_at = submission.submission.submitted_at;
-        // Ensure score is numeric
+        // Ensure score is numeric (if string)
         const score = Number(submission.submission.score);
 
         // Check score is numeric
@@ -168,7 +168,7 @@ function getLearnerData(course, ag, submissions) {
 
         const assignDueDate = assignment.due_at;
 
-        // Ensure points possible is numeric
+        // Ensure points possible is numeric (if string)
         const assignPoints = Number(assignment.points_possible);
 
         // Check assignPoints is numeric
